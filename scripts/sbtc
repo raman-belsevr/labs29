@@ -1,0 +1,63 @@
+if [ -z "$1" ]
+then 
+    echo "usage: sbtc <project_name>"
+    exit 1
+else 
+    echo "creating sbt project"
+fi
+
+base_dir=$1
+
+# create and switch to base dir
+mkdir -p $base_dir
+cd $base_dir
+
+# create directories
+mkdir -p src/main/resource src/main/scala
+mkdir -p test/resources test/scala
+
+# create build files
+touch build.sbt
+echo "import Dependencies._" >> build.sbt
+
+echo "lazy val root = (project in file(\".\"))
+      .settings(
+         commonSettings,
+         name := \"$1\",
+         scalaVersion := \"2.11.8\",
+         version := \"0.1.0-SNAPSHOT\",
+         test in assembly := {}
+       )
+      .enablePlugins(AssemblyPlugin)" >> build.sbt
+echo "" >> build.sbt
+echo "lazy val commonSettings = Seq(
+  organization := \"com.example\",
+  version := \"0.1.0-SNAPSHOT\",
+  scalaVersion := \"2.11.8\"
+)" >> build.sbt
+echo "" >> build.sbt
+ 
+
+mkdir project
+touch project/Dependencies.scala
+touch project/build.properties
+touch project/site.sbt
+touch project/assembly.sbt
+
+# initialize Dependencies.scala
+echo "import sbt._
+
+object Dependencies {
+}" >> project/Dependencies.scala
+
+# enable assembly plugin
+echo "addSbtPlugin(\"com.eed3si9n\" % \"sbt-assembly\" % \"0.14.6\")" >> project/plugins.sbt
+
+# initialized build.properties"
+echo "sbt.version=0.13.12" >> project/build.properties
+
+touch .gitignore
+echo "target" >> .gitignore
+
+echo "created sbt project $1"
+cd $base_dir
